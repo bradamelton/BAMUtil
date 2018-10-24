@@ -12,16 +12,16 @@ namespace BAMUtil
     {
         public static string ObjectToString(object o1, StringBuilder sb = null, int level = 0)
         {
-            Type ot1 = o1.GetType();
-
-            if (sb == null)
-            {
-                sb = new StringBuilder();
-                sb.AppendLine($"{ot1.Name}: ");
-            }
-
             if (o1 != null)
             {
+                Type ot1 = o1.GetType();
+
+                if (sb == null)
+                {
+                    sb = new StringBuilder();
+                    sb.AppendLine($"{ot1.Name}: ");
+                }
+
                 if (isEnumerable(ot1))
                 {
                     if (level > 0)
@@ -42,7 +42,7 @@ namespace BAMUtil
                 else
                 {
                     // I would like a more general way of doing this.
-                    if (ot1 == typeof(string) || ot1 == typeof(System.Object) || ot1.BaseType == typeof(System.ValueType))
+                    if (ot1 == typeof(string) || ot1 == typeof(System.Object) || ot1.BaseType == typeof(System.ValueType) || ot1.Namespace.StartsWith("System"))
                     {
                         sb.AppendLine($"{string.Empty.PadLeft((level) * 3)}{o1.ToString()}");
                     }
@@ -58,11 +58,19 @@ namespace BAMUtil
                             {
                                 sb.Append($"{string.Empty.PadLeft((level + 1) * 3)}{pi1.Name}: ");
                                 val = pi1.GetValue(o1);
-                                ObjectToString(val, sb, level + 1);
+
+                                if (val == null)
+                                {
+                                    sb.AppendLine();
+                                }
+                                else
+                                {
+                                    ObjectToString(val, sb, level + 1);
+                                }
                             }
                             catch (Exception ex)
                             {
-                                sb.AppendLine($"{string.Empty.PadLeft((level + 1) * 3)}{pi1.Name}: {ex.Message}.");
+                                sb.AppendLine($"{ex.Message}.");
                             }
                         }
                     }
