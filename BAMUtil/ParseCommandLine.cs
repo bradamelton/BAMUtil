@@ -1,10 +1,31 @@
 using System.Collections.Generic;
-using System.Text; 
+using System.Text;
 
 namespace BAMUtil
 {
     public class ParseCommandLine
     {
+        public Dictionary<string, string> Args { get; set; }
+        public ParseCommandLine(string[] args)
+        {
+            this.Args = Parse(args);
+        }
+
+        public bool HasValue(string key)
+        {
+            return Args.ContainsKey(key);
+        }
+
+        public string GetValue(string key)
+        {
+            if (Args.ContainsKey(key))
+            {
+                return Args[key];
+            }
+
+            return null;
+        }
+
         public static Dictionary<string, string> Parse(string[] args)
         {
             var outputArguments = new Dictionary<string, string>();
@@ -24,7 +45,7 @@ namespace BAMUtil
                 {
                     if (arg.StartsWith("-"))
                     {
-                        currentCommand = arg.TrimStart('-');
+                        currentCommand = arg;
                         if (!outputArguments.ContainsKey(currentCommand))
                         {
                             outputArguments.Add(currentCommand, null);

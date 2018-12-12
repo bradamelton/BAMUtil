@@ -2,6 +2,7 @@
 using System.Text;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using System.Reflection;
@@ -92,6 +93,26 @@ namespace BAMUtil
                          select i);
 
             return found?.Count() > 0;
+        }
+    }
+
+    public class InputListener
+    {
+        public static CancellationTokenSource StartListener(string message = "", Action callback = null)
+        {
+            var cts = new CancellationTokenSource();
+
+            var token = cts.Token;
+
+            var task = Task.Run(() =>
+            {
+                Console.WriteLine(message);
+                Console.ReadLine();
+                cts?.Cancel();
+                callback?.Invoke();
+            });
+
+            return cts;
         }
     }
 }
