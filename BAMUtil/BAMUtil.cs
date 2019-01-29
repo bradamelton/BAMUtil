@@ -1,16 +1,47 @@
 ﻿using System;
-using System.Text;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Runtime.InteropServices;
-using System.Reflection;
+
+using System.Net;
 
 namespace BAMUtil
 {
     public static class Util
     {
+        public static string ObjectToQueryString(object o1, bool urlEncode = true)
+        {
+            var sb = new StringBuilder();
+
+            if (o1 != null)
+            {
+                Type ot1 = o1.GetType();
+
+                PropertyInfo[] o1pi = ot1.GetProperties();
+
+                foreach (PropertyInfo pi1 in o1pi)
+                {
+                    object val = pi1.GetValue(o1);
+
+                    if (val != null)
+                    {
+                        if (sb.Length > 0)
+                        {
+                            sb.Append("&");
+                        }
+
+                        sb.Append($"{pi1.Name}={WebUtility.UrlEncode(val.ToString())}");
+                    }
+                }
+            }
+
+            return sb.ToString();
+        }
+
         public static string ObjectToString(object o1, StringBuilder sb = null, int level = 0)
         {
             if (o1 != null)
@@ -30,9 +61,9 @@ namespace BAMUtil
                         sb.AppendLine($"{string.Empty.PadLeft((level) * 3)}{ot1.Name}: ");
                     }
 
-                    IEnumerable<object> o1E = (IEnumerable<object>)o1;
+                    IEnumerable<object> o1E = (IEnumerable<object>) o1;
 
-                    for (int i = 0; i < ((IEnumerable<object>)o1).Count(); i++)
+                    for (int i = 0; i < ((IEnumerable<object>) o1).Count(); i++)
                     {
                         if (o1E.ElementAt(i) != null)
                         {
@@ -86,11 +117,10 @@ namespace BAMUtil
             // string is technically an array of chars.
             if (ot1 == typeof(string)) { return false; }
 
-            var found = (from i in ot1.GetInterfaces()
-                         where i.IsGenericType &&
-                               i.GetGenericTypeDefinition() == typeof(IEnumerable<>) //&&
-                         // typeof(MyBaseClass).IsAssignableFrom(i.GetGenericArguments()[0])
-                         select i);
+            var found = (from i in ot1.GetInterfaces() where i.IsGenericType &&
+                i.GetGenericTypeDefinition() == typeof(IEnumerable<>) //&&
+                // typeof(MyBaseClass).IsAssignableFrom(i.GetGenericArguments()[0])
+                select i);
 
             return found?.Count() > 0;
         }
