@@ -8,11 +8,29 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using System.Net;
+using System.ComponentModel;
 
 namespace BAMUtil
 {
     public static class Util
     {
+        // not sure if this will work on inherited handlers. Example from: https://stackoverflow.com/questions/91778/how-to-remove-all-event-handlers-from-an-event
+        // maybe BindingFlags.FlattenHierarchy | BindingFlags.Instance
+        public static void RemoveHandlers(object o1, string eventName)
+        {
+            var o1Type = o1.GetType();
+
+            EventInfo f1 = o1Type.GetEvent(eventName);
+
+            var field = o1Type.GetField(eventName, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy);
+
+            var eventDelegate = field?.GetValue(o1);
+
+            if (eventDelegate != null)
+            {
+                f1?.RemoveEventHandler(o1, (Delegate)eventDelegate);
+            }
+        }
         public static string ObjectToQueryString(object o1, bool urlEncode = true)
         {
             var sb = new StringBuilder();
@@ -61,9 +79,9 @@ namespace BAMUtil
                         sb.AppendLine($"{string.Empty.PadLeft((level) * 3)}{ot1.Name}: ");
                     }
 
-                    IEnumerable<object> o1E = (IEnumerable<object>) o1;
+                    IEnumerable<object> o1E = (IEnumerable<object>)o1;
 
-                    for (int i = 0; i < ((IEnumerable<object>) o1).Count(); i++)
+                    for (int i = 0; i < ((IEnumerable<object>)o1).Count(); i++)
                     {
                         if (o1E.ElementAt(i) != null)
                         {
@@ -117,10 +135,11 @@ namespace BAMUtil
             // string is technically an array of chars.
             if (ot1 == typeof(string)) { return false; }
 
-            var found = (from i in ot1.GetInterfaces() where i.IsGenericType &&
-                i.GetGenericTypeDefinition() == typeof(IEnumerable<>) //&&
-                // typeof(MyBaseClass).IsAssignableFrom(i.GetGenericArguments()[0])
-                select i);
+            var found = (from i in ot1.GetInterfaces()
+                         where i.IsGenericType &&
+i.GetGenericTypeDefinition() == typeof(IEnumerable<>) //&&
+                                                      // typeof(MyBaseClass).IsAssignableFrom(i.GetGenericArguments()[0])
+                         select i);
 
             return found?.Count() > 0;
         }
