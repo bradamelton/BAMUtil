@@ -9,11 +9,17 @@ namespace BAMUtil
 {
     public static class Extensions
     {
-        public static T Pop<T>(this List<T> S)
+        // dynamic here is a little trixie. I really need a nullable t.
+        public static dynamic Pop<T>(this List<T> S) where T : new()
         {
-            var pop = S.FirstOrDefault();
-            S.RemoveAt(0);
-            return pop;
+            if (S.Count > 0)
+            {
+                var pop = S.FirstOrDefault();
+                S.RemoveAt(0);
+                return pop;
+            }
+
+            return null;
         }
 
         public static T Clone<T>(this T S)
