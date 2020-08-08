@@ -4,10 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using DBu;
+
 namespace BAMUtil
 {
-    [DatabaseTableConnectionName("AppLogCS")]
-    public class AppLog : DatabaseTable
+    [DatabaseName("AppLogCS")]
+    public class AppLog : DBuClass
     {
         //private System.Guid _id = System.Guid.NewGuid();
         //public override System.Guid Id
