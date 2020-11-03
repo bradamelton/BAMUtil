@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\..\DBu\DBu.Core\DBu.Core.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
